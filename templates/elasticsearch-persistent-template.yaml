@@ -113,26 +113,16 @@ objects:
       spec:
         containers:
         - env:
-          - name: ES_DB_TYPE
-            value: "mysql"
-          - name: ES_DB_NAME
-            value: "${MYSQL_DATABASE}"          
-          - name: ES_DB_USER
-            value: "${MYSQL_USER}"
-          - name: ES_DB_PASSWORD
-            value: "${MYSQL_PASSWORD}"
-          - name: ES_DB_HOST
-            value: "${MYSQL_DATABASE_SERVICE_NAME}"
-          - name: ES_ADDONS_LIST
-            value: "${ES_ADDONS_LIST}"
-          - name: ES_MONGO_HOST
-            value: "${MONGODB_DATABASE_SERVICE_NAME}"
-          - name: ES_MONGO_DB_NAME
-            value: "${MONGODB_DATABASE}"
-          - name: ES_MONGO_USERNAME
-            value: ${MONGODB_USER}
-          - name: ES_MONGO_PASSWORD
-            value: ${MONGODB_PASSWORD}            
+          - name: ES_CLUSTER_NAME
+            value: ${ES_CLUSTER_NAME}
+          - name: ES_NUMBER_OF_MASTERS
+            value: "${ES_NUMBER_OF_MASTERS}"          
+          - name: ES_NETWORK_HOST
+            value: "${ES_NETWORK_HOST}"
+          - name: ES_PUBLISH_HOST
+            value: "${ES_PUBLISH_HOST}"
+          - name: ES_UNICAST_HOSTS
+            value: "${ES_UNICAST_HOSTS}"
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 3

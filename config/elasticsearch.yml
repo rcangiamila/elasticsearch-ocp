@@ -43,7 +43,7 @@ http.enabled: true
 # Transport configuration                                                                                                                                                                                                      
 #                                                                                                                                                                                                                              
 network.host: ${ES_NETWORK_HOST}
-network.publish_host: ${ES_PUBLISH_HOST}
+#network.publish_host: ${ES_PUBLISH_HOST}
 #transport.type: local
 #http.type: netty4
 http.port: 9200
