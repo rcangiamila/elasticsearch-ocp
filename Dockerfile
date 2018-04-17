@@ -11,7 +11,7 @@ ENV PATH ${ES_HOME}/bin:$PATH
 ENV JAVA_HOME /usr/lib/jvm/jre-1.8.0-openjdk
 ENV ES_DOWNLOAD_URL=https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz
 ENV ES_XPACK_DOWNLOAD_URL=https://artifacts.elastic.co/downloads/packs/x-pack/x-pack-${ES_VERSION}.zip
-ENV INGEST_PLUGINS="ingest-user-agent ingest-geoip"
+ENV INGEST_PLUGINS="ingest-user-agent ingest-geoip ingest-attachment mapper-attachments"
 ENV ES_JAVA_OPTS "-Xms512m -Xmx512m"
 ENV ES_CLUSTER_NAME=exoplatform-es
 ENV ES_NUMBER_OF_MASTERS=1
@@ -51,8 +51,10 @@ RUN for PLUGIN in x-pack ${INGEST_PLUGINS}; do \
       elasticsearch-plugin install --batch "$PLUGIN"; \
     done
 
-COPY bin/ ${ES_HOME}/bin
-COPY config/ ${ES_HOME}/config
+COPY config/elasticsearch.yml ${ES_HOME}/config/
+COPY config/log4j2.properties ${ES_HOME}/config/
+COPY config/x-pack/log4j2.properties ${ES_HOME}/config/x-pack/
+COPY bin/es-docker ${ES_HOME}/bin/es-docker
 
 RUN chmod -R a+rwx ${ES_HOME} && \
     chown -R elasticsearch:0 ${ES_HOME} && \
