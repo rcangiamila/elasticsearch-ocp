@@ -60,7 +60,10 @@ USER root
 
 RUN chmod -R a+rwx ${ES_HOME} && \
     chown -R elasticsearch:0 ${ES_HOME} && \
-    chmod -R g=u /etc/passwd
+    chmod -R g=u /etc/passwd && \
+    ulimit -n 65536 && \
+    ulimit -u 2048 && \
+    echo "*  -  nofile  65536" >> /etc/security/limits.conf
 
 USER 1001
 
