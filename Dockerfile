@@ -57,6 +57,8 @@ COPY config/x-pack/log4j2.properties ${ES_HOME}/config/x-pack/
 COPY bin/run_es ${ES_HOME}/bin/run_es
 
 RUN ls -ltr ${ES_HOME}
+RUN ls -ltr ${ES_HOME}/bin
+RUN ls -ltr ${ES_HOME}/config
 
 RUN chgrp -R 0 ${ES_HOME} && \
     chmod -R g+rw ${ES_HOME} && \
