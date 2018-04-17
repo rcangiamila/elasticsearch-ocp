@@ -1,200 +1,224 @@
-apiVersion: template.openshift.io/v1
+apiVersion: v1
 kind: Template
-labels:
-  template: mysql-persistent-template
-message: |-
-  The following service(s) have been created in your project: ${DATABASE_SERVICE_NAME}.
-
-         Username: ${MYSQL_USER}
-         Password: ${MYSQL_PASSWORD}
-    Database Name: ${MYSQL_DATABASE}
-   Connection URL: mysql://${DATABASE_SERVICE_NAME}:3306/
-
-  For more information about using this template, including OpenShift considerations, see https://github.com/sclorg/mysql-container/blob/master/5.7/README.md.
 metadata:
+  creationTimestamp: null
+  labels:
+    name: elasticsearch
   annotations:
-    description: |-
-      MySQL database service, with persistent storage. For more information about using this template, including OpenShift considerations, see https://github.com/sclorg/mysql-container/blob/master/5.7/README.md.
-
-      NOTE: Scaling to more than one replica is not supported. You must have persistent volumes available in your cluster to use this template.
-    iconClass: icon-mysql-database
-    openshift.io/display-name: MySQL
-    openshift.io/documentation-url: https://docs.openshift.org/latest/using_images/db_images/mysql.html
-    openshift.io/long-description: This template provides a standalone MySQL server
-      with a database created.  The database is stored on persistent storage.  The
-      database name, username, and password are chosen via parameters when provisioning
-      this service.
-    openshift.io/provider-display-name: Red Hat, Inc.
-    openshift.io/support-url: https://access.redhat.com
-    tags: database,mysql
-  creationTimestamp: 2018-03-29T08:56:25Z
-  name: mysql-persistent
-  namespace: openshift
-  resourceVersion: "354"
-  selfLink: /apis/template.openshift.io/v1/namespaces/openshift/templates/mysql-persistent
-  uid: 0fd22aa5-332f-11e8-bf83-9a0d453d2548
+    description: Elasticsearch OpenShift template
+    openshift.io/display-name: Elasticsearch
+    tags: instant-app,elasticsearch
+  name: elasticsearch
+message: "Deploy Elasticsearch in Openshift Container Platform"
 objects:
-- apiVersion: v1
-  kind: Secret
-  metadata:
-    annotations:
-      template.openshift.io/expose-database_name: '{.data[''database-name'']}'
-      template.openshift.io/expose-password: '{.data[''database-password'']}'
-      template.openshift.io/expose-root_password: '{.data[''database-root-password'']}'
-      template.openshift.io/expose-username: '{.data[''database-user'']}'
-    name: ${DATABASE_SERVICE_NAME}
-  stringData:
-    database-name: ${MYSQL_DATABASE}
-    database-password: ${MYSQL_PASSWORD}
-    database-root-password: ${MYSQL_ROOT_PASSWORD}
-    database-user: ${MYSQL_USER}
 - apiVersion: v1
   kind: Service
   metadata:
-    annotations:
-      template.openshift.io/expose-uri: mysql://{.spec.clusterIP}:{.spec.ports[?(.name=="mysql")].port}
-    name: ${DATABASE_SERVICE_NAME}
+    name: ${ES_SERVICE_NAME}
   spec:
     ports:
-    - name: mysql
-      port: 3306
+    - name: 9200-tcp
+      nodePort: 0
+      port: 9200
+      protocol: TCP
+      targetPort: 9200
     selector:
-      name: ${DATABASE_SERVICE_NAME}
+      name: ${ES_SERVICE_NAME}
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
 - apiVersion: v1
   kind: PersistentVolumeClaim
   metadata:
-    name: ${DATABASE_SERVICE_NAME}
+    name: ${ES_SERVICE_NAME}-data
   spec:
     accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
     resources:
       requests:
-        storage: ${VOLUME_CAPACITY}
+        storage: ${ES_VOLUME_CAPACITY}
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    labels:
+      application: ${ES_SERVICE_NAME}
+    name: ${ES_SERVICE_NAME}
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: ${ES_SERVICE_NAME}
+      appName: ${ES_SERVICE_NAME}
+    name: ${ES_SERVICE_NAME}
+  spec:
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: ${ES_SERVICE_NAME}:latest
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      contextDir: /
+      git:
+        uri: https://github.com/rcangiamila/elasticsearch-ocp.git
+      type: Git
+    strategy:
+      dockerStrategy:
+        dockerfilePath: Dockerfile
+      type: Docker
+    triggers:
+    - github:
+        secret: tu5UyJNNhAyxXYrcnDTZ
+      type: GitHub
+    - generic:
+        secret: xhUU0WVDG3eA2Yu89zGe
+      type: Generic
+    - type: ConfigChange
+    - imageChange: {}
+      type: ImageChange
+  status:
+    lastVersion: 0
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
-    annotations:
-      template.alpha.openshift.io/wait-for-ready: "true"
-    name: ${DATABASE_SERVICE_NAME}
+    labels:
+      creationTimestamp: null
+      name: ${ES_SERVICE_NAME}
+    name: ${ES_SERVICE_NAME}
   spec:
     replicas: 1
     selector:
-      name: ${DATABASE_SERVICE_NAME}
+      name: ${ES_SERVICE_NAME}
     strategy:
-      type: Recreate
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
     template:
       metadata:
+        creationTimestamp: null
         labels:
-          name: ${DATABASE_SERVICE_NAME}
+          name: ${ES_SERVICE_NAME}
       spec:
         containers:
         - env:
-          - name: MYSQL_USER
-            valueFrom:
-              secretKeyRef:
-                key: database-user
-                name: ${DATABASE_SERVICE_NAME}
-          - name: MYSQL_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                key: database-password
-                name: ${DATABASE_SERVICE_NAME}
-          - name: MYSQL_ROOT_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                key: database-root-password
-                name: ${DATABASE_SERVICE_NAME}
-          - name: MYSQL_DATABASE
-            valueFrom:
-              secretKeyRef:
-                key: database-name
-                name: ${DATABASE_SERVICE_NAME}
-          image: ' '
-          imagePullPolicy: IfNotPresent
+          - name: ES_DB_TYPE
+            value: "mysql"
+          - name: ES_DB_NAME
+            value: "${MYSQL_DATABASE}"          
+          - name: ES_DB_USER
+            value: "${MYSQL_USER}"
+          - name: ES_DB_PASSWORD
+            value: "${MYSQL_PASSWORD}"
+          - name: ES_DB_HOST
+            value: "${MYSQL_DATABASE_SERVICE_NAME}"
+          - name: ES_ADDONS_LIST
+            value: "${ES_ADDONS_LIST}"
+          - name: ES_MONGO_HOST
+            value: "${MONGODB_DATABASE_SERVICE_NAME}"
+          - name: ES_MONGO_DB_NAME
+            value: "${MONGODB_DATABASE}"
+          - name: ES_MONGO_USERNAME
+            value: ${MONGODB_USER}
+          - name: ES_MONGO_PASSWORD
+            value: ${MONGODB_PASSWORD}            
+          imagePullPolicy: Always
           livenessProbe:
-            initialDelaySeconds: 30
-            tcpSocket:
-              port: 3306
-            timeoutSeconds: 1
-          name: mysql
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 9200
+              scheme: HTTP
+            initialDelaySeconds: 900
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 4
+          name: ${ES_SERVICE_NAME}
           ports:
-          - containerPort: 3306
-          readinessProbe:
-            exec:
-              command:
-              - /bin/sh
-              - -i
-              - -c
-              - MYSQL_PWD="$MYSQL_PASSWORD" mysql -h 127.0.0.1 -u $MYSQL_USER -D $MYSQL_DATABASE
-                -e 'SELECT 1'
-            initialDelaySeconds: 5
-            timeoutSeconds: 1
+          - containerPort: 9200
+            protocol: TCP
           resources:
             limits:
-              memory: ${MEMORY_LIMIT}
+              cpu: ${ES_CPU_LIMIT}
+              memory: ${ES_MEMORY_LIMIT}
+            requests:
+              cpu: 500m
+              memory: "1Gi"
+          terminationMessagePath: /dev/termination-log
           volumeMounts:
-          - mountPath: /var/lib/mysql/data
-            name: ${DATABASE_SERVICE_NAME}-data
+          - mountPath: /opt/elasticsearch/data
+            name: ${ES_SERVICE_NAME}-data
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
         volumes:
-        - name: ${DATABASE_SERVICE_NAME}-data
+        - name: ${ES_SERVICE_NAME}-data
           persistentVolumeClaim:
-            claimName: ${DATABASE_SERVICE_NAME}
+            claimName: ${ES_SERVICE_NAME}-data
+    test: false
     triggers:
+    - type: ConfigChange
     - imageChangeParams:
         automatic: true
         containerNames:
-        - mysql
+        - ${ES_SERVICE_NAME}
         from:
           kind: ImageStreamTag
-          name: mysql:${MYSQL_VERSION}
-          namespace: ${NAMESPACE}
+          name: ${ES_SERVICE_NAME}:latest
       type: ImageChange
-    - type: ConfigChange
+  status: {}
 parameters:
-- description: Maximum amount of memory the container can use.
-  displayName: Memory Limit
-  name: MEMORY_LIMIT
+- description: Number of virtual CPUs to allocate for Elasticsearch.
+  displayName: Elasticsearch CPU limit
+  name: ES_CPU_LIMIT
   required: true
-  value: 512Mi
-- description: The OpenShift Namespace where the ImageStream resides.
-  displayName: Namespace
-  name: NAMESPACE
-  value: openshift
-- description: The name of the OpenShift Service exposed for the database.
-  displayName: Database Service Name
-  name: DATABASE_SERVICE_NAME
+  value: "2"
+- description: The maximum amount of memory that the Elasticsearch application is allowed to use (Min is 512Mi)
+  displayName: Elasticsearch Memory Limit
+  name: ES_MEMORY_LIMIT
   required: true
-  value: mysql
-- description: Username for MySQL user that will be used for accessing the database.
-  displayName: MySQL Connection Username
-  from: user[A-Z0-9]{3}
-  generate: expression
-  name: MYSQL_USER
+  value: 2Gi
+- description: The name of the Elasticsearch Service exposed for the route.
+  displayName: Elasticsearch Service Name
+  name: ES_SERVICE_NAME
   required: true
-- description: Password for the MySQL connection user.
-  displayName: MySQL Connection Password
-  from: '[a-zA-Z0-9]{16}'
-  generate: expression
-  name: MYSQL_PASSWORD
+  value: exo
+- description: Elasticsearch Volume space available for data, e.g. 512Mi, 2Gi.
+  displayName: Elasticsearch volume capacity
+  name: ES_VOLUME_CAPACITY
   required: true
-- description: Password for the MySQL root user.
-  displayName: MySQL root user Password
-  from: '[a-zA-Z0-9]{16}'
-  generate: expression
-  name: MYSQL_ROOT_PASSWORD
+  value: 2Gi
+- description: Elasticsearch cluster name.
+  displayName: Elasticsearch cluster name
+  name: ES_CLUSTER_NAME
   required: true
-- description: Name of the MySQL database accessed.
-  displayName: MySQL Database Name
-  name: MYSQL_DATABASE
+  value: elasticsearch
+- description: Elasticsearch minimum number of master-eligible nodes.
+  displayName: Elasticsearch number of master nodes
+  name: ES_NUMBER_OF_MASTERS
   required: true
-  value: sampledb
-- description: Volume space available for data, e.g. 512Mi, 2Gi.
-  displayName: Volume Capacity
-  name: VOLUME_CAPACITY
+  value: "1"
+- description: Elasticsearch network bind.
+  displayName: Elasticsearch network bind
+  name: ES_NETWORK_HOST
   required: true
-  value: 1Gi
-- description: Version of MySQL image to be used (5.5, 5.6, 5.7, or latest).
-  displayName: Version of MySQL Image
-  name: MYSQL_VERSION
-  required: true
-  value: "5.7"
+  value: 0.0.0.0
+- description: Elasticsearch publish host.
+  displayName: Elasticsearch publish host.
+  name: ES_PUBLISH_HOST
+- description: Elasticsearch loopback addresses bind.
+  displayName: Elasticsearch loopback addresses bind.
+  name: ES_UNICAST_HOSTS
+  value: "127.0.0.1, [::1]"
