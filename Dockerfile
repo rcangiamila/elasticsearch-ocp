@@ -53,6 +53,7 @@ RUN for PLUGIN in x-pack ${INGEST_PLUGINS}; do \
 
 COPY config/elasticsearch.yml ${ES_HOME}/config/
 COPY config/log4j2.properties ${ES_HOME}/config/
+COPY config/jvm.options ${ES_HOME}/config/
 COPY config/x-pack/log4j2.properties ${ES_HOME}/config/x-pack/
 COPY bin/run_es ${ES_HOME}/bin/run_es
 
