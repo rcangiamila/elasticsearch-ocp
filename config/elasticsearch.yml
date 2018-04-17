@@ -58,3 +58,4 @@ discovery.zen.ping.unicast.hosts: ${ES_UNICAST_HOSTS}
 
 # Set to true (default) to enable X-Pack security on the node
 xpack.security.enabled: false
+bootstrap.memory_lock: false
