@@ -51,10 +51,16 @@ RUN for PLUGIN in x-pack ${INGEST_PLUGINS}; do \
       elasticsearch-plugin install --batch "$PLUGIN"; \
     done
 
-COPY --chown=elasticsearch:0 config/elasticsearch.yml ${ES_HOME}/config/
-COPY --chown=elasticsearch:0 config/log4j2.properties ${ES_HOME}/config/
-COPY --chown=elasticsearch:0 config/x-pack/log4j2.properties ${ES_HOME}/config/x-pack/
-COPY --chown=elasticsearch:0 bin/run_es ${ES_HOME}/bin/run_es
+COPY config/elasticsearch.yml ${ES_HOME}/config/
+COPY config/log4j2.properties ${ES_HOME}/config/
+COPY config/x-pack/log4j2.properties ${ES_HOME}/config/x-pack/
+COPY bin/run_es ${ES_HOME}/bin/run_es
+
+RUN ls -ltr ${ES_HOME}
+
+RUN chgrp -R 0 /usr/share/elasticsearch && \
+    chmod -R g+rw /usr/share/elasticsearch && \
+    find /usr/share/elasticsearch -type d -exec chmod g+x {} + 
 
 RUN chmod -R a+rwx ${ES_HOME} && \
     chown -R elasticsearch:0 ${ES_HOME} && \
