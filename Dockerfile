@@ -54,7 +54,7 @@ RUN for PLUGIN in x-pack ${INGEST_PLUGINS}; do \
 COPY config/elasticsearch.yml ${ES_HOME}/config/
 COPY config/log4j2.properties ${ES_HOME}/config/
 COPY config/x-pack/log4j2.properties ${ES_HOME}/config/x-pack/
-COPY bin/es-docker ${ES_HOME}/bin/es-docker
+COPY bin/run_es ${ES_HOME}/bin/run_es
 
 RUN chmod -R a+rwx ${ES_HOME} && \
     chown -R elasticsearch:0 ${ES_HOME} && \

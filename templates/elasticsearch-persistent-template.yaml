@@ -194,7 +194,7 @@ parameters:
   displayName: Elasticsearch Service Name
   name: ES_SERVICE_NAME
   required: true
-  value: exo
+  value: elasticsearch
 - description: Elasticsearch Volume space available for data, e.g. 512Mi, 2Gi.
   displayName: Elasticsearch volume capacity
   name: ES_VOLUME_CAPACITY
