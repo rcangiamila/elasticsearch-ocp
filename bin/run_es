@@ -35,6 +35,8 @@ do
     fi
 done < <(env)
 
+sysctl -w vm.max_map_count=262144
+
 # The virtual file /proc/self/cgroup should list the current cgroup
 # membership. For each hierarchy, you can follow the cgroup path from
 # this file to the cgroup filesystem (usually /sys/fs/cgroup/) and
