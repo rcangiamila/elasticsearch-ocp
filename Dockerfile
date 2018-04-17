@@ -58,9 +58,9 @@ COPY bin/run_es ${ES_HOME}/bin/run_es
 
 RUN ls -ltr ${ES_HOME}
 
-RUN chgrp -R 0 /usr/share/elasticsearch && \
-    chmod -R g+rw /usr/share/elasticsearch && \
-    find /usr/share/elasticsearch -type d -exec chmod g+x {} + 
+RUN chgrp -R 0 ${ES_HOME} && \
+    chmod -R g+rw ${ES_HOME} && \
+    find ${ES_HOME} -type d -exec chmod g+x {} + 
 
 RUN chmod -R a+rwx ${ES_HOME} && \
     chown -R elasticsearch:0 ${ES_HOME} && \
