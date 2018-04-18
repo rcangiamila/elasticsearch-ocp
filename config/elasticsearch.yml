@@ -37,7 +37,7 @@ node.name: ${HOSTNAME}
                                                                                                                                                                                                                                
 # Enabled HTTP completely:
 #
-#http.enabled: true
+http.enabled: true
 
 # Don't try to build a cluster by default                                                                                                                                                                                      
 # Transport configuration                                                                                                                                                                                                      
@@ -47,7 +47,7 @@ network.host: ${ES_NETWORK_HOST}
 network.publish_host: ${ES_PUBLISH_HOST}
 #transport.type: local
 #http.type: netty4
-#http.port: 9200
+http.port: 9200
 
 ################################## Discovery ##################################                                                                                                                                                
                                                                                                                                                                                                                                

@@ -10,8 +10,7 @@ ENV ELASTIC_CONTAINER true
 ENV PATH ${ES_HOME}/bin:$PATH
 ENV JAVA_HOME /usr/lib/jvm/jre-1.8.0-openjdk
 ENV ES_DOWNLOAD_URL=https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz
-ENV ES_XPACK_DOWNLOAD_URL=https://artifacts.elastic.co/downloads/packs/x-pack/x-pack-${ES_VERSION}.zip
-ENV INGEST_PLUGINS="ingest-user-agent ingest-geoip ingest-attachment mapper-attachments"
+ENV INGEST_PLUGINS="ingest-user-agent ingest-geoip ingest-attachment"
 ENV ES_JAVA_OPTS "-Xms512m -Xmx512m"
 ENV ES_CLUSTER_NAME=exoplatform-es
 ENV ES_NUMBER_OF_MASTERS=1
