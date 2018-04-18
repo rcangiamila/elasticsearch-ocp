@@ -37,25 +37,27 @@ node.name: ${HOSTNAME}
                                                                                                                                                                                                                                
 # Enabled HTTP completely:
 #
-http.enabled: true
+#http.enabled: true
 
 # Don't try to build a cluster by default                                                                                                                                                                                      
 # Transport configuration                                                                                                                                                                                                      
 #                                                                                                                                                                                                                              
-network.host: ${ES_NETWORK_HOST}
+#network.host: ${ES_NETWORK_HOST}
+network.host: 0.0.0.0
 #network.publish_host: ${ES_PUBLISH_HOST}
 #transport.type: local
 #http.type: netty4
-http.port: 9200
+#http.port: 9200
 
 ################################## Discovery ##################################                                                                                                                                                
                                                                                                                                                                                                                                
 # Unicast discovery allows to explicitly control which nodes will be used                                                                                                                                                      
 # to discover the cluster.                                                                                                                                                                                                     
 #                                                                                                                                                                                                                              
-discovery.zen.minimum_master_nodes: ${ES_NUMBER_OF_MASTERS}
+#discovery.zen.minimum_master_nodes: ${ES_NUMBER_OF_MASTERS}
 #discovery.zen.ping.unicast.hosts: ${ES_UNICAST_HOSTS}
 
 # Set to true (default) to enable X-Pack security on the node
 xpack.security.enabled: false
 bootstrap.memory_lock: false
+discovery.type: single-node
