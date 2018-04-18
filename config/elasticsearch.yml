@@ -54,7 +54,7 @@ http.port: 9200
 # to discover the cluster.                                                                                                                                                                                                     
 #                                                                                                                                                                                                                              
 discovery.zen.minimum_master_nodes: ${ES_NUMBER_OF_MASTERS}
-discovery.zen.ping.unicast.hosts: ${ES_UNICAST_HOSTS}
+#discovery.zen.ping.unicast.hosts: ${ES_UNICAST_HOSTS}
 
 # Set to true (default) to enable X-Pack security on the node
 xpack.security.enabled: false

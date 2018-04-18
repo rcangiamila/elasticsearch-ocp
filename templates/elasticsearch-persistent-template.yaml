@@ -22,6 +22,11 @@ objects:
       port: 9200
       protocol: TCP
       targetPort: 9200
+    - name: 9300-tcp
+      nodePort: 0
+      port: 9300
+      protocol: TCP
+      targetPort: 9300
     selector:
       name: ${ES_SERVICE_NAME}
     sessionAffinity: None
@@ -112,17 +117,7 @@ objects:
           name: ${ES_SERVICE_NAME}
       spec:
         containers:
-        - env:
-          - name: ES_CLUSTER_NAME
-            value: ${ES_CLUSTER_NAME}
-          - name: ES_NUMBER_OF_MASTERS
-            value: "${ES_NUMBER_OF_MASTERS}"          
-          - name: ES_NETWORK_HOST
-            value: "${ES_NETWORK_HOST}"
-          - name: ES_PUBLISH_HOST
-            value: "${ES_PUBLISH_HOST}"
-          - name: ES_UNICAST_HOSTS
-            value: "${ES_UNICAST_HOSTS}"
+        - capabilities: {}
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 3
@@ -137,6 +132,8 @@ objects:
           name: ${ES_SERVICE_NAME}
           ports:
           - containerPort: 9200
+            protocol: TCP
+          - containerPort: 9300
             protocol: TCP
           resources:
             limits:
