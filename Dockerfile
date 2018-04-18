@@ -32,7 +32,6 @@ RUN INSTALL_PACKAGES="unzip wget vim-enhanced tzdata nano gettext nss_wrapper cu
     yum install -y --setopt=tsflags=nodocs $INSTALL_PACKAGES && \
     rpm -V $INSTALL_PACKAGES && \
     yum clean all && \
-    rm -rf /var/cache/yum && \
     useradd -m -u 1001 -g 0 -m -s /sbin/nologin -d ${ES_HOME} elasticsearch && \
     cat /etc/passwd > /etc/passwd.template 
 
